@@ -1,6 +1,6 @@
-import event from "./models/event";
-import { PrismaClient } from "@prisma/client";
-import cron from "node-cron";
+import event from './models/event';
+import { PrismaClient } from '@prisma/client';
+import cron from 'node-cron';
 
 const prisma = new PrismaClient();
 
@@ -58,7 +58,7 @@ const getEvents = async () => {
 
 
 // Run every 3 hours
-cron.schedule(`0 */3 * * *`, async () => {
+cron.schedule('0 */3 * * *', async () => {
   console.log('Running cron task');
   await main();
 });

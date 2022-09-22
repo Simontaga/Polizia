@@ -1,4 +1,4 @@
-import location from "./location";
+import location from './location';
 
 export default class Event {
 
