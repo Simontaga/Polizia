@@ -1,37 +1,27 @@
 import event from "./models/event";
 import { PrismaClient } from "@prisma/client";
+import cron from "node-cron";
+
 const prisma = new PrismaClient();
 
 let events: event[];
 
-const url = "https://polisen.se/api/events";
-
-const getEvents = async () => {
-  await fetch(url)
-    .then((response) => response.json())
-    .then((json) => {
-      events = json;
-    });
-};
+const url = 'https://polisen.se/api/events';
 
 const main = async () => {
-  await getEvents();
-  await uploadEvents();
-
-  /*setTimeout(async () => {
-    await getEvents();
+  await getEvents().then(async () => {
     await uploadEvents();
-  }, 120 * 100); */
+  });
 };
 
 const uploadEvents = async () => {
   if (events.length >= 1) {
     const event_ = events.shift();
-    if (event_ && !await doesEventExist(event_)) {
-      const result = await prisma.event
+    if (event_ && !(await doesEventExist(event_))) {
+      await prisma.event
         .create({
           data: {
-            id: event_.id,
+            eventID: event_.id,
             datetime: new Date(event_.datetime),
             name: event_.name,
             summary: event_.summary,
@@ -51,11 +41,23 @@ const uploadEvents = async () => {
 const doesEventExist = async (event_: event) => {
   const result = await prisma.event.findFirst({
     where: {
-      id: event_.id,
+      eventID: event_.id,
     },
   });
 
   return result !== null;
 };
 
-main();
+const getEvents = async () => {
+  await fetch(url)
+    .then((response) => response.json())
+    .then((json) => {
+      events = json;
+    });
+};
+
+
+// Run every 3 hours
+cron.schedule(`0 */3 * * *`, async () => {
+  await main();
+});
