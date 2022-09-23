@@ -1,14 +1,13 @@
-import event from './models/event';
-import { PrismaClient } from '@prisma/client';
-import cron from 'node-cron';
+import event from "./models/event";
+import { PrismaClient } from "@prisma/client";
+import cron from "node-cron";
 
 const prisma = new PrismaClient();
 
 let events: event[];
 let totalEvents = 0;
 
-
-const url = 'https://polisen.se/api/events';
+const url = "https://polisen.se/api/events";
 
 const main = async () => {
   await getEvents().then(async () => {
@@ -16,10 +15,9 @@ const main = async () => {
     totalEvents = events.length;
     await uploadEvents();
     totalEvents = 0;
-    console.log('Finished');
+    console.log("Finished");
   });
 };
-
 
 const uploadEvents = async () => {
   if (events.length < 1) return;
@@ -46,23 +44,27 @@ const uploadEvents = async () => {
 };
 
 const doesEventExist = async (event_: event) => {
-  const result = await prisma.event.findUnique({
-    where: {
-      eventID: event_.id,
-    },
-  }).catch(e => (console.log(`Error in doesEventExist: ${e} `)));
+  const result = await prisma.event
+    .findUnique({
+      where: {
+        eventID: event_.id,
+      },
+    })
+    .catch((e) => console.log(`Error in doesEventExist: ${e} `));
   return result !== null;
 };
 
 const getEvents = async () => {
+  console.log('Retrieving events');
   await fetch(url)
     .then((response) => response.json())
     .then((json) => {
       events = json;
-    }).catch(e => ( console.log(`Error in getEvents: ${e}`)));
+    })
+    .catch((e) => console.log(`Error in getEvents: ${e}`));
 };
 
-cron.schedule('*/15 * * * *', async () => {
-  console.log('Running cron');
+cron.schedule("*/15 * * * *", async () => {
+  console.log("Running cron");
   await main();
 });
