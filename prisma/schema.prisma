@@ -12,7 +12,7 @@ datasource db {
 
 model Event {
   id Int @id @default(autoincrement())
-  eventID  Int
+  eventID  Int @unique
   datetime DateTime
   name String
   summary String
