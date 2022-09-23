@@ -57,8 +57,6 @@ const getEvents = async () => {
 };
 
 
-// Run every 3 hours
-cron.schedule('0 */3 * * *', async () => {
-  console.log('Running cron task');
+cron.schedule('*/10 * * * *', async () => {
   await main();
 });
