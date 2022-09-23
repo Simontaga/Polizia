@@ -1,6 +1,7 @@
 import event from "./models/event";
 import { PrismaClient } from "@prisma/client";
 import cron from "node-cron";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 
@@ -55,16 +56,16 @@ const doesEventExist = async (event_: event) => {
 };
 
 const getEvents = async () => {
-  console.log('Retrieving events');
-  await fetch(url)
-    .then((response) => response.json())
-    .then((json) => {
-      events = json;
-    })
+  console.log("Retrieving events");
+
+  await axios
+    .get<event[]>(url)
+    .then((response) => ( events = response.data ))
     .catch((e) => console.log(`Error in getEvents: ${e}`));
 };
 
-cron.schedule("*/15 * * * *", async () => {
+
+cron.schedule("*/5 * * * *", async () => {
   console.log("Running cron");
   await main();
 });
